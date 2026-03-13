@@ -2677,28 +2677,46 @@ CRITICAL RULES FOR THE "appearance" FIELD:
     }
   }
 
-  function generateQrCode() {
+  let lastShareUrl = null;
+
+  async function uploadAssets() {
+    try {
+      const cardEl = document.getElementById('resultCard');
+      let cardDataUrl = null;
+      if (cardEl && typeof html2canvas !== 'undefined') {
+        const canvas = await html2canvas(cardEl, { backgroundColor: '#0a0514', scale: 2, useCORS: true });
+        cardDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      }
+      const resp = await fetch(window.location.origin + '/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          card_image: cardDataUrl,
+          video_url: lastVideoUrl || null,
+          name: lastCharacter?.name || 'Unknown',
+          faction: lastCharacter?.faction || '',
+        }),
+      });
+      if (!resp.ok) throw new Error('Upload failed');
+      const data = await resp.json();
+      lastShareUrl = data.share_url;
+      return data.share_url;
+    } catch (e) {
+      console.warn('Asset upload failed:', e);
+      return null;
+    }
+  }
+
+  async function generateQrCode() {
     const qrContainer = document.getElementById('collectQr');
+    const hint = document.querySelector('.collect-qr-hint');
+    qrContainer.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:16px;">Uploading...</div>';
+
+    const shareUrl = await uploadAssets();
     qrContainer.innerHTML = '';
 
-    // Build QR target URL — video URL is most useful at events (direct link to asset)
-    let qrTarget = '';
-    if (lastVideoUrl) {
-      qrTarget = lastVideoUrl;
-    } else if (lastImageBase64) {
-      // Image is local base64 — create a blob URL users can open
-      try {
-        const byteChars = atob(lastImageBase64);
-        const byteArray = new Uint8Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
-        const blob = new Blob([byteArray], { type: 'image/png' });
-        qrTarget = URL.createObjectURL(blob);
-      } catch (e) {
-        qrTarget = window.location.href.split('?')[0];
-      }
-    }
-
-    if (!qrTarget) return;
+    const qrTarget = shareUrl || lastVideoUrl || window.location.href;
+    if (hint) hint.textContent = shareUrl ? 'Scan to view on your phone' : 'Point your phone camera at the QR code';
 
     try {
       const canvas = document.createElement('canvas');

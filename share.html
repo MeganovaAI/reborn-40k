@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REBORN 40K — Your Character</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0A0514;
+    color: #E8E0F0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .logo { font-size: 12px; letter-spacing: 6px; color: #FFD700; margin-bottom: 24px; text-transform: uppercase; }
+  .card-img { max-width: 360px; width: 100%; border-radius: 12px; border: 1px solid rgba(255,215,0,0.2); box-shadow: 0 8px 40px rgba(107,29,158,0.3); }
+  .name { font-size: 24px; font-weight: 800; color: #FFD700; margin-top: 20px; text-transform: uppercase; letter-spacing: 2px; }
+  .faction { font-size: 13px; color: #9080A8; letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+  .video-wrap { margin-top: 24px; max-width: 360px; width: 100%; }
+  .video-wrap video { width: 100%; border-radius: 12px; border: 1px solid rgba(255,107,0,0.2); }
+  .save-hint { margin-top: 24px; font-size: 13px; color: #9080A8; text-align: center; letter-spacing: 1px; }
+  .loading { color: #9080A8; font-size: 14px; letter-spacing: 2px; }
+  .error { color: #ff4444; font-size: 14px; }
+  .branding { margin-top: 40px; font-size: 11px; color: #9080A8; letter-spacing: 3px; opacity: 0.5; }
+</style>
+</head>
+<body>
+  <div class="logo">REBORN 40K</div>
+  <div id="content"><span class="loading">Loading your character...</span></div>
+  <div class="branding">POWERED BY MEGANOVA</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const content = document.getElementById('content');
+
+  if (!id) {
+    content.innerHTML = '<span class="error">No character ID provided</span>';
+  } else {
+    fetch(`/uploads/${id}.json`)
+      .then(r => {
+        if (!r.ok) throw new Error('Character not found');
+        return r.json();
+      })
+      .then(meta => {
+        let html = '';
+        if (meta.card_url) {
+          html += `<img class="card-img" src="${meta.card_url}" alt="${meta.name}">`;
+        }
+        html += `<div class="name">${meta.name || 'Unknown'}</div>`;
+        html += `<div class="faction">${meta.faction || ''}</div>`;
+        if (meta.video_url) {
+          html += `<div class="video-wrap"><video src="${meta.video_url}" controls loop autoplay muted playsinline></video></div>`;
+        }
+        html += `<div class="save-hint">Long-press the image to save to your phone</div>`;
+        content.innerHTML = html;
+      })
+      .catch(err => {
+        content.innerHTML = `<span class="error">${err.message}</span>`;
+      });
+  }
+</script>
+</body>
+</html>
