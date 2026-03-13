@@ -1,0 +1,3300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REBORN 40K — From Soul to Shape | MegaNova</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root {
+    --zerg-purple: #6B1D9E;
+    --zerg-green: #7FFF00;
+    --creep-dark: #1a0a2e;
+    --creep-mid: #2d1350;
+    --hive-orange: #FF6B00;
+    --mesh-cyan: #00E5FF;
+    --text-primary: #E8E0F0;
+    --text-dim: #9080A8;
+    --bg-deep: #0A0514;
+    --gold: #FFD700;
+    --gold-dim: #B8960C;
+    --gold-bright: #FFEC80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(107,29,158,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,229,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,215,0,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* ========== CONFERENCE TOP BAR ========== */
+  .conf-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--hive-orange), var(--zerg-purple), var(--mesh-cyan));
+    z-index: 10000;
+  }
+
+  .conf-nav {
+    position: fixed;
+    top: 3px; left: 0; right: 0;
+    z-index: 9998;
+    background: rgba(10,5,20,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    transition: transform 0.3s ease;
+  }
+
+  .conf-nav .nav-left {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .conf-nav .nav-badge {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+    padding: 4px 16px;
+    border-radius: 20px;
+    background: rgba(255,215,0,0.05);
+  }
+
+  .conf-nav .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .config-toggle {
+    background: none;
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--mesh-cyan);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .config-toggle:hover {
+    background: rgba(0,229,255,0.1);
+    border-color: var(--mesh-cyan);
+  }
+  .config-toggle.has-key {
+    border-color: rgba(127,255,0,0.4);
+    color: var(--zerg-green);
+  }
+
+  /* ========== CONFIG PANEL ========== */
+  .config-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .config-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .config-panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 380px;
+    max-width: 90vw;
+    background: linear-gradient(170deg, #12081e, #0a0514);
+    border-left: 1px solid rgba(0,229,255,0.2);
+    z-index: 10002;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 32px 28px;
+    overflow-y: auto;
+  }
+  .config-panel.open {
+    transform: translateX(0);
+  }
+
+  .config-panel h3 {
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--mesh-cyan);
+    margin-bottom: 28px;
+  }
+
+  .config-field {
+    margin-bottom: 20px;
+  }
+
+  .config-field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .config-field input {
+    width: 100%;
+    background: rgba(107,29,158,0.08);
+    border: 1px solid rgba(107,29,158,0.25);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  .config-field input:focus {
+    border-color: var(--mesh-cyan);
+  }
+  .config-field input::placeholder {
+    color: rgba(144,128,168,0.5);
+  }
+
+  .config-save {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(107,29,158,0.15));
+    border: 1px solid rgba(0,229,255,0.3);
+    border-radius: 6px;
+    color: var(--mesh-cyan);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+  }
+  .config-save:hover {
+    background: linear-gradient(135deg, rgba(0,229,255,0.25), rgba(107,29,158,0.25));
+    border-color: var(--mesh-cyan);
+  }
+
+  .config-status {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--zerg-green);
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .config-status.show { opacity: 1; }
+
+  /* ========== HERO ========== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 100px 24px 60px;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(107,29,158,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse at 30% 70%, rgba(255,215,0,0.08) 0%, transparent 50%),
+      url('nova_hero_bg.png') center/cover no-repeat,
+      var(--bg-deep);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, rgba(107,29,158,0.15) 40%, transparent 70%);
+    animation: pulse-bg 8s ease-in-out infinite;
+  }
+
+  @keyframes pulse-bg {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 200px;
+    background: linear-gradient(to top, var(--bg-deep), transparent);
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-badge {
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+    padding: 8px 24px;
+    border-radius: 24px;
+    margin-bottom: 48px;
+    display: inline-block;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    animation: fade-in-down 0.8s ease-out;
+  }
+
+  @keyframes fade-in-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes glow-gold {
+    0%, 100% { text-shadow: 0 0 40px rgba(255,215,0,0.2); }
+    50% { text-shadow: 0 0 80px rgba(255,215,0,0.4), 0 0 120px rgba(107,29,158,0.3); }
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 9vw, 96px);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--hive-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fade-in-up 1s ease-out 0.2s both, glow-gold 4s ease-in-out infinite;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(16px, 2.5vw, 26px);
+    font-weight: 700;
+    color: var(--mesh-cyan);
+    letter-spacing: 10px;
+    margin-bottom: 48px;
+    animation: fade-in-up 1s ease-out 0.4s both;
+  }
+
+  .hero-desc {
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--text-dim);
+    max-width: 650px;
+    line-height: 1.8;
+    margin: 0 auto;
+    animation: fade-in-up 1s ease-out 0.6s both;
+  }
+
+  .hero-desc strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fade-in-up 1s ease-out 1s both;
+  }
+
+  .hero-scroll-hint span {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  .scroll-arrow {
+    width: 20px; height: 20px;
+    border-right: 2px solid var(--gold);
+    border-bottom: 2px solid var(--gold);
+    transform: rotate(45deg);
+    opacity: 0.4;
+    animation: bounce-arrow 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce-arrow {
+    0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.4; }
+    50% { transform: rotate(45deg) translateY(6px); opacity: 0.8; }
+  }
+
+  /* ========== INTERACTIVE GENERATOR ========== */
+  .gen-section {
+    padding: 100px 0 80px;
+    position: relative;
+  }
+
+  .gen-section::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), rgba(0,229,255,0.3), rgba(255,215,0,0.2), transparent);
+  }
+
+  .gen-form-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .gen-label {
+    font-size: 14px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    opacity: 0.8;
+    font-weight: 700;
+  }
+
+  .gen-form-wrap h2 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    margin-bottom: 40px;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .gen-form-wrap h2 .accent-cyan { color: var(--mesh-cyan); }
+
+  .gen-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(107,29,158,0.06);
+    border: 1px solid rgba(107,29,158,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gen-textarea:focus {
+    border-color: rgba(255,215,0,0.4);
+    box-shadow: 0 0 30px rgba(255,215,0,0.06);
+  }
+  .gen-textarea::placeholder {
+    color: rgba(144,128,168,0.5);
+    font-style: italic;
+  }
+
+  .faction-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .faction-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(107,29,158,0.08);
+    border: 1px solid rgba(107,29,158,0.2);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  .faction-card:hover {
+    background: rgba(255,215,0,0.08);
+    border-color: rgba(255,215,0,0.3);
+    color: var(--gold);
+  }
+  .faction-card img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255,215,0,0.25);
+  }
+  .faction-card.selected {
+    background: rgba(255,215,0,0.12);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 16px rgba(255,215,0,0.15);
+  }
+  .faction-card.selected img {
+    border-color: var(--gold);
+    box-shadow: 0 0 8px rgba(255,215,0,0.3);
+  }
+  .faction-step {
+    margin-bottom: 8px;
+  }
+  .step-label {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .faction-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ========== INPUT BOXES (Describe vs Camera) ========== */
+  .input-boxes {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .input-box {
+    flex: 1;
+    padding: 24px;
+    border-radius: 12px;
+    border: 2px solid rgba(107,29,158,0.15);
+    background: rgba(107,29,158,0.03);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .input-box:hover {
+    border-color: rgba(107,29,158,0.3);
+  }
+  .input-box.active {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.03);
+    box-shadow: 0 0 30px rgba(255,215,0,0.06);
+  }
+
+  .input-box-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .input-box-icon {
+    font-size: 20px;
+  }
+  .input-box-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: color 0.3s ease;
+  }
+  .input-box.active .input-box-title {
+    color: var(--gold);
+  }
+
+  .input-box .gen-textarea {
+    min-height: 160px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 768px) {
+    .input-boxes { flex-direction: column; }
+  }
+
+  .camera-preview-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(107,29,158,0.25);
+    background: rgba(0,0,0,0.3);
+  }
+  .camera-preview-wrap video,
+  .camera-preview-wrap canvas,
+  .camera-preview-wrap img {
+    width: 100%;
+    border-radius: 12px;
+  }
+  .camera-preview-wrap video { display: none; }
+  .camera-preview-wrap video.streaming { display: block; }
+  .camera-preview-wrap canvas { display: none; }
+  .camera-preview-wrap canvas.show { display: block; }
+
+  .camera-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .camera-btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .camera-btn-snap {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    color: var(--bg-deep);
+  }
+  .camera-btn-snap:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,215,0,0.2); }
+  .camera-btn-retake {
+    background: rgba(107,29,158,0.1);
+    border: 1px solid rgba(107,29,158,0.3);
+    color: var(--text-dim);
+    display: none;
+  }
+  .camera-btn-retake.show { display: inline-block; }
+  .camera-btn-snap:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .camera-status {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .gen-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .gen-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    border-radius: 8px;
+    color: var(--bg-deep);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .gen-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(255,215,0,0.3);
+  }
+  .gen-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .gen-btn.running {
+    background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(107,29,158,0.3));
+    color: var(--mesh-cyan);
+    border: 1px solid rgba(0,229,255,0.3);
+  }
+
+  .gen-status-text {
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .gen-no-key-warning {
+    margin-top: 16px;
+    padding: 12px 18px;
+    background: rgba(255,107,0,0.08);
+    border: 1px solid rgba(255,107,0,0.25);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--hive-orange);
+    display: none;
+  }
+
+  /* ========== LIVE PROGRESS TRACKER ========== */
+  .progress-tracker {
+    margin-top: 48px;
+    display: none;
+  }
+  .progress-tracker.active { display: block; }
+
+  .progress-steps {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+
+  .progress-pip {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(107,29,158,0.2);
+    transition: background 0.5s ease;
+    position: relative;
+  }
+  .progress-pip.done { background: var(--gold); }
+  .progress-pip.active {
+    background: linear-gradient(90deg, var(--mesh-cyan), var(--gold));
+    animation: pip-pulse 1.5s ease-in-out infinite;
+  }
+  .progress-pip.error { background: #FF4444; }
+
+  @keyframes pip-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .progress-log {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 2;
+    font-family: 'Space Grotesk', monospace;
+  }
+
+  .progress-log .log-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+  .progress-log .log-line.active {
+    opacity: 1;
+    color: var(--mesh-cyan);
+  }
+  .progress-log .log-line.done {
+    opacity: 0.8;
+    color: var(--zerg-green);
+  }
+  .progress-log .log-line.error {
+    opacity: 1;
+    color: #FF4444;
+  }
+
+  .log-icon {
+    width: 16px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(0,229,255,0.2);
+    border-top-color: var(--mesh-cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* ========== GEN ERROR DISPLAY ========== */
+  .gen-error {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.25);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #FF8888;
+    display: none;
+    word-break: break-word;
+  }
+  .gen-error.show { display: block; }
+
+  /* ========== SECTIONS ========== */
+  .section {
+    padding: 120px 0;
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 14px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    opacity: 0.8;
+    font-weight: 700;
+  }
+
+  .section h2 {
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 700;
+    margin-bottom: 60px;
+    line-height: 1.3;
+  }
+
+  .section h2 .accent { color: var(--hive-orange); }
+  .section h2 .accent-gold { color: var(--gold); }
+  .section h2 .accent-cyan { color: var(--mesh-cyan); }
+
+  .section::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 60px; bottom: 60px;
+    width: 3px;
+    background: linear-gradient(to bottom, transparent, var(--gold-dim), transparent);
+    opacity: 0.3;
+  }
+
+  /* ========== PIPELINE TIMELINE ========== */
+  .pipeline {
+    position: relative;
+    padding-left: 60px;
+  }
+
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--zerg-purple), var(--mesh-cyan), var(--gold));
+  }
+
+  .pipeline-step {
+    position: relative;
+    margin-bottom: 40px;
+    padding: 32px 36px;
+    border-radius: 12px;
+    background: rgba(107,29,158,0.06);
+    border: 1px solid rgba(107,29,158,0.15);
+    transition: all 0.4s ease;
+  }
+
+  .pipeline-step:last-child {
+    margin-bottom: 0;
+  }
+
+  .pipeline-step:hover {
+    border-color: rgba(255,215,0,0.3);
+    background: rgba(107,29,158,0.1);
+    box-shadow: 0 0 30px rgba(255,215,0,0.08), 0 0 60px rgba(107,29,158,0.05);
+  }
+
+  .step-number {
+    position: absolute;
+    left: -60px;
+    top: 32px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    z-index: 2;
+    animation: pulse-number 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-number {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(255,215,0,0); }
+  }
+
+  .step-number.step-input {
+    background: var(--zerg-purple);
+    color: #fff;
+    border: 2px solid rgba(107,29,158,0.6);
+    animation-delay: 0s;
+  }
+
+  .step-number.step-llm {
+    background: rgba(0,229,255,0.15);
+    color: var(--mesh-cyan);
+    border: 2px solid rgba(0,229,255,0.4);
+    animation-delay: 0.3s;
+  }
+
+  .step-number.step-image {
+    background: rgba(127,255,0,0.1);
+    color: var(--zerg-green);
+    border: 2px solid rgba(127,255,0,0.4);
+    animation-delay: 0.6s;
+  }
+
+  .step-number.step-video {
+    background: rgba(255,107,0,0.1);
+    color: var(--hive-orange);
+    border: 2px solid rgba(255,107,0,0.4);
+    animation-delay: 0.9s;
+  }
+
+  .step-number.step-output {
+    background: rgba(255,215,0,0.15);
+    color: var(--gold);
+    border: 2px solid rgba(255,215,0,0.4);
+    animation-delay: 1.2s;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .step-title {
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .step-model-badge {
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .badge-attendee {
+    background: rgba(107,29,158,0.15);
+    color: #c0a0e0;
+    border: 1px solid rgba(107,29,158,0.4);
+  }
+
+  .badge-qwen {
+    background: rgba(0,229,255,0.1);
+    color: var(--mesh-cyan);
+    border: 1px solid rgba(0,229,255,0.3);
+  }
+
+  .badge-zimage {
+    background: rgba(127,255,0,0.1);
+    color: var(--zerg-green);
+    border: 1px solid rgba(127,255,0,0.3);
+  }
+
+  .badge-wan {
+    background: rgba(255,107,0,0.1);
+    color: var(--hive-orange);
+    border: 1px solid rgba(255,107,0,0.3);
+  }
+
+  .badge-output {
+    background: rgba(255,215,0,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+
+  .step-desc {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .step-desc em {
+    color: var(--text-primary);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* ========== CARD MOCKUP ========== */
+  .card-showcase {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .reborn-card {
+    width: 320px;
+    background: linear-gradient(170deg, #12081e 0%, #0a0514 50%, #12081e 100%);
+    border: 2px solid var(--gold-dim);
+    border-radius: 16px;
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 30px rgba(255,215,0,0.1),
+      0 20px 60px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(255,215,0,0.15);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+  }
+
+  .reborn-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+      0 0 50px rgba(255,215,0,0.2),
+      0 30px 80px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,215,0,0.2);
+  }
+
+  /* Holographic shimmer overlay */
+  .reborn-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255,215,0,0.06) 30deg,
+      rgba(0,229,255,0.06) 60deg,
+      rgba(127,255,0,0.04) 90deg,
+      transparent 120deg,
+      rgba(255,107,0,0.06) 180deg,
+      rgba(107,29,158,0.06) 240deg,
+      transparent 300deg
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    animation: shimmer-rotate 6s linear infinite paused;
+  }
+
+  .reborn-card:hover::before {
+    opacity: 1;
+    animation-play-state: running;
+  }
+
+  @keyframes shimmer-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Gold corner accents */
+  .reborn-card::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid rgba(255,215,0,0.12);
+    border-radius: 12px;
+    pointer-events: none;
+  }
+
+  .card-header {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-logo {
+    font-size: 10px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .card-name {
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-faction {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--hive-orange);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .card-portrait {
+    width: 100%;
+    height: 260px;
+    border-radius: 8px;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(107,29,158,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 60%, rgba(0,229,255,0.1) 0%, transparent 50%),
+      linear-gradient(170deg, #1a0a2e, #0a0514);
+    border: 1px solid rgba(255,215,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .card-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 7px;
+  }
+
+  .card-portrait-icon {
+    font-size: 48px;
+    opacity: 0.2;
+    color: var(--gold);
+  }
+
+  .card-portrait-label {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.4;
+  }
+
+  .card-backstory-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .card-backstory {
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text-dim);
+    line-height: 1.5;
+    text-align: center;
+    font-style: italic;
+    padding: 8px 4px;
+    border-top: 1px solid rgba(255,215,0,0.1);
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-footer {
+    text-align: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,215,0,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-footer-logo {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-output-note {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 15px;
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  .card-output-note strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ========== VIDEO PLAYER ========== */
+  .video-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 400px;
+  }
+  .video-section.show {
+    display: flex;
+  }
+
+  .video-gen-btn {
+    padding: 14px 36px;
+    background: linear-gradient(135deg, var(--hive-orange), #ff3d00);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 340px;
+  }
+  .video-gen-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(255,107,0,0.4);
+  }
+  .video-gen-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .video-progress-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 340px;
+  }
+  .video-progress-wrap.show {
+    display: flex;
+  }
+
+  .video-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .video-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--hive-orange), var(--gold));
+    border-radius: 3px;
+    transition: width 1s linear;
+  }
+  .video-progress-text {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .video-player {
+    width: 340px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,107,0,0.3);
+    background: #000;
+    box-shadow: 0 0 30px rgba(255,107,0,0.1);
+    display: none;
+  }
+  .video-player.show {
+    display: block;
+  }
+
+  .video-caption {
+    display: none;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.6;
+  }
+  .video-caption.show {
+    display: block;
+  }
+
+  .closing-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .closing-logo-item {
+    color: var(--gold);
+  }
+
+  /* ========== REGENERATE BUTTON ========== */
+  .regen-btn {
+    display: none;
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    background: rgba(107,29,158,0.1);
+    border: 1px solid rgba(107,29,158,0.3);
+    border-radius: 8px;
+    color: var(--mesh-cyan);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .regen-btn:hover:not(:disabled) {
+    background: rgba(107,29,158,0.2);
+    border-color: var(--mesh-cyan);
+  }
+  .regen-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .regen-btn.show { display: block; }
+
+  /* ========== ARROW BUTTONS (below card) ========== */
+  .card-actions {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 24px;
+  }
+  .card-actions.show { display: flex; }
+
+  .action-arrow-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid;
+  }
+  .action-arrow-btn:hover {
+    transform: translateY(-2px);
+  }
+  .action-arrow-btn .arrow { font-size: 18px; }
+
+  .action-arrow-btn.btn-video {
+    background: rgba(255,107,0,0.08);
+    border-color: rgba(255,107,0,0.3);
+    color: var(--hive-orange);
+  }
+  .action-arrow-btn.btn-video:hover {
+    background: rgba(255,107,0,0.15);
+    box-shadow: 0 4px 20px rgba(255,107,0,0.15);
+  }
+
+  /* ========== OUTPUT PANELS ========== */
+  .output-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .output-panel {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(107,29,158,0.04);
+    border: 1px solid rgba(107,29,158,0.15);
+  }
+  .output-panel.show { display: flex; }
+
+  .output-panel-title {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .panel-video .output-panel-title { color: var(--hive-orange); }
+
+  .video-desc-input {
+    width: 100%;
+    min-height: 60px;
+    background: rgba(107,29,158,0.06);
+    border: 1px solid rgba(107,29,158,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+  }
+  .video-desc-input:focus { border-color: rgba(255,107,0,0.4); }
+  .video-desc-input::placeholder { color: rgba(144,128,168,0.4); font-style: italic; }
+
+  /* ========== TECH STACK ========== */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin: 48px 0 40px;
+  }
+
+  .tech-card {
+    padding: 36px 28px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .tech-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .tech-card.card-llm {
+    background: rgba(0,229,255,0.05);
+    border: 1px solid rgba(0,229,255,0.15);
+  }
+  .tech-card.card-llm::before { background: var(--mesh-cyan); }
+  .tech-card.card-llm:hover {
+    box-shadow: 0 8px 40px rgba(0,229,255,0.12);
+    border-color: rgba(0,229,255,0.35);
+  }
+
+  .tech-card.card-img {
+    background: rgba(127,255,0,0.04);
+    border: 1px solid rgba(127,255,0,0.15);
+  }
+  .tech-card.card-img::before { background: var(--zerg-green); }
+  .tech-card.card-img:hover {
+    box-shadow: 0 8px 40px rgba(127,255,0,0.1);
+    border-color: rgba(127,255,0,0.35);
+  }
+
+  .tech-card.card-vid {
+    background: rgba(255,107,0,0.05);
+    border: 1px solid rgba(255,107,0,0.15);
+  }
+  .tech-card.card-vid::before { background: var(--hive-orange); }
+  .tech-card.card-vid:hover {
+    box-shadow: 0 8px 40px rgba(255,107,0,0.12);
+    border-color: rgba(255,107,0,0.35);
+  }
+
+  .tech-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .tech-name {
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .tech-card.card-llm .tech-name { color: var(--mesh-cyan); }
+  .tech-card.card-img .tech-name { color: var(--zerg-green); }
+  .tech-card.card-vid .tech-name { color: var(--hive-orange); }
+
+  .tech-maker {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.6;
+    margin-bottom: 16px;
+  }
+
+  .tech-role {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .orchestrator-badge {
+    text-align: center;
+    margin-top: 12px;
+    padding: 16px 32px;
+    display: inline-block;
+    border: 1px solid rgba(107,29,158,0.3);
+    border-radius: 24px;
+    background: rgba(107,29,158,0.08);
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+  }
+
+  .orchestrator-badge:hover {
+    border-color: rgba(107,29,158,0.5);
+    background: rgba(107,29,158,0.12);
+  }
+
+  .orchestrator-badge strong {
+    color: var(--mesh-cyan);
+    font-weight: 700;
+  }
+
+  .orchestrator-wrap {
+    text-align: center;
+  }
+
+  /* ========== GALLERY ========== */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .gallery-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(107,29,158,0.2);
+    background: rgba(10,5,20,0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .gallery-item:hover {
+    border-color: rgba(255,215,0,0.4);
+    box-shadow: 0 4px 24px rgba(255,215,0,0.1);
+    transform: translateY(-2px);
+  }
+  .gallery-item img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+  }
+  .gallery-item video {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+  }
+  .gallery-item-info {
+    padding: 10px 12px;
+  }
+  .gallery-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gallery-item-faction {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .gallery-item-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .gallery-item-badge.badge-video {
+    background: rgba(255,107,0,0.8);
+    color: #fff;
+  }
+  .gallery-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-dim);
+    font-size: 14px;
+    letter-spacing: 1px;
+    border: 1px dashed rgba(107,29,158,0.2);
+    border-radius: 12px;
+  }
+  /* QR / Collect */
+  .collect-qr-wrap {
+    text-align: center;
+  }
+  .collect-qr {
+    display: inline-block;
+    padding: 12px;
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .collect-qr canvas {
+    display: block;
+  }
+  .collect-qr-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    opacity: 0.7;
+  }
+  .collect-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .collect-divider::before,
+  .collect-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,215,0,0.15);
+  }
+
+  /* Gallery lightbox */
+  .gallery-lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 10001;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .gallery-lightbox.show { display: flex; }
+  .gallery-lightbox img,
+  .gallery-lightbox video {
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(255,215,0,0.15);
+  }
+  .gallery-lightbox-close {
+    position: absolute;
+    top: 24px; right: 32px;
+    font-size: 32px;
+    color: var(--text-dim);
+    cursor: pointer;
+    z-index: 10002;
+  }
+
+  /* ========== CLOSING ========== */
+  .closing {
+    text-align: center;
+    padding: 140px 24px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(255,215,0,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 80%, rgba(107,29,158,0.12) 0%, transparent 40%),
+      var(--bg-deep);
+  }
+
+  .closing::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold), var(--gold-dim), transparent);
+  }
+
+  .closing-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .closing h2 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--hive-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .closing-tagline {
+    font-size: clamp(14px, 2vw, 20px);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--mesh-cyan);
+    margin-bottom: 48px;
+  }
+
+  .closing-summary {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+
+  .closing-summary strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    text-align: center;
+    padding: 60px 24px;
+    border-top: 1px solid rgba(255,215,0,0.15);
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-left {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .footer-logo {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--gold), var(--hive-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-right {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* ========== SCROLL ANIMATIONS ========== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Stagger delays for pipeline steps */
+  .pipeline-step:nth-child(1) { transition-delay: 0s; }
+  .pipeline-step:nth-child(2) { transition-delay: 0.1s; }
+  .pipeline-step:nth-child(3) { transition-delay: 0.2s; }
+  .pipeline-step:nth-child(4) { transition-delay: 0.3s; }
+  .pipeline-step:nth-child(5) { transition-delay: 0.4s; }
+
+  /* ========== PIPELINE BRANCH ========== */
+  .pipeline-branch {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding-left: 0;
+  }
+
+  .pipeline-branch .pipeline-step {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .step-number.step-collect {
+    background: rgba(255,215,0,0.15);
+    color: var(--gold);
+    border: 2px solid rgba(255,215,0,0.4);
+    animation-delay: 1.2s;
+  }
+
+  .badge-collect {
+    background: rgba(255,215,0,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .conf-nav { padding: 0 16px; }
+    .conf-nav .nav-left { display: none; }
+    .tech-grid { grid-template-columns: 1fr; }
+    .pipeline { padding-left: 50px; }
+    .pipeline::before { left: 18px; }
+    .step-number { left: -50px; width: 36px; height: 36px; font-size: 14px; }
+    .reborn-card { width: 100%; max-width: 340px; }
+    .video-player { width: 100%; max-width: 340px; }
+    .video-gen-btn, .video-progress-wrap { max-width: 100%; }
+    .footer { flex-direction: column; text-align: center; }
+    .section::before { display: none; }
+    .pipeline-branch { flex-direction: column; }
+    .card-showcase { flex-direction: column; align-items: center; }
+    .output-panels { max-width: 100%; }
+    .card-actions { max-width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .pipeline { padding-left: 44px; }
+    .pipeline::before { left: 14px; }
+    .step-number { left: -44px; width: 30px; height: 30px; font-size: 12px; }
+    .pipeline-step { padding: 24px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal, .reveal-left {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFERENCE TOP BAR -->
+<div class="conf-bar"></div>
+<nav class="conf-nav">
+  <span class="nav-left">MegaNova</span>
+  <span class="nav-badge">Live Demo</span>
+  <span class="nav-right">
+    <span>REBORN 40K</span>
+    <button class="config-toggle" id="configToggle" onclick="toggleConfig()">API</button>
+  </span>
+</nav>
+
+<!-- CONFIG PANEL -->
+<div class="config-overlay" id="configOverlay" onclick="toggleConfig()"></div>
+<form class="config-panel" id="configPanel" autocomplete="off" onsubmit="event.preventDefault(); saveConfig();">
+  <h3>API Configuration</h3>
+  <div class="config-field">
+    <label>API Key (required)</label>
+    <input type="text" id="cfgApiKey" name="reborn_key" placeholder="sk-..." autocomplete="off" data-1p-ignore data-lpignore="true" />
+  </div>
+  <div class="config-field">
+    <label>API URL (optional — defaults to api.meganova.ai)</label>
+    <input type="text" id="cfgApiUrl" name="reborn_url" placeholder="https://api.meganova.ai" autocomplete="off" data-1p-ignore data-lpignore="true" />
+  </div>
+  <button type="submit" class="config-save">Save</button>
+  <div class="config-status" id="cfgStatus">Saved</div>
+</form>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">MegaNova &bull; REBORN 40K</div>
+    <h1>FROM SOUL<br>TO SHAPE</h1>
+    <div class="hero-subtitle">REBORN 40K</div>
+    <p class="hero-desc">
+      <strong>Describe a character.</strong> Watch AI bring it to life.<br>
+      Walk away with a collectible card and animated video.
+    </p>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- INTERACTIVE GENERATOR -->
+<section class="gen-section" id="generator">
+  <div class="container">
+    <div class="gen-form-wrap">
+      <div class="gen-label reveal">// Try It Live</div>
+      <h2 class="reveal">Create Your <span class="accent-cyan">Character</span></h2>
+
+      <!-- Step 1: Choose Faction -->
+      <div class="faction-step reveal">
+        <div class="step-label">Step 1 — Choose Your Faction</div>
+        <div class="faction-grid" id="factionGrid">
+          <div class="faction-card" onclick="selectFaction(this, 'void corsairs')" data-faction="void corsairs" data-v="A grizzled void pirate captain with cybernetic eyes and a tattered star-map cloak, haunted by ghost signals from a dead fleet"><img src="factions/void_corsair_thumb.jpg" alt="Void Corsair">Void Corsair</div>
+          <div class="faction-card" onclick="selectFaction(this, 'iron covenant')" data-faction="iron covenant" data-v="A zealous tech-priestess of the Iron Covenant who hears machine spirits whisper prophecies through her augmented skull"><img src="factions/iron_covenant_thumb.jpg" alt="Iron Covenant">Iron Covenant</div>
+          <div class="faction-card" onclick="selectFaction(this, 'hive collective')" data-faction="hive collective" data-v="A psychic hive-queen who commands swarms of bio-mechanical insects, her skin shimmering with iridescent chitin and compound eyes"><img src="factions/hive_collective_thumb.jpg" alt="Hive Collective">Hive Collective</div>
+          <div class="faction-card" onclick="selectFaction(this, 'astral wardens')" data-faction="astral wardens" data-v="A blind astral seer monk who reads the future in psychic flame, floating runes orbiting her shaved head"><img src="factions/astral_warden_thumb.jpg" alt="Astral Warden">Astral Warden</div>
+          <div class="faction-card" onclick="selectFaction(this, 'ember legion')" data-faction="ember legion" data-v="A scarred Ember Legion shock trooper sergeant, battle-hardened and loyal to a fault, who carries the banner of a fallen regiment"><img src="factions/ember_legion_thumb.jpg" alt="Ember Legion">Ember Legion</div>
+          <div class="faction-card" onclick="selectFaction(this, 'null syndicate')" data-faction="null syndicate" data-v="A Null Syndicate assassin who erases memories with a touch, hiding behind a data-stream visor and adaptive camouflage"><img src="factions/null_syndicate_thumb.jpg" alt="Null Syndicate">Null Syndicate</div>
+        </div>
+      </div>
+
+      <!-- Step 2: Describe or Camera -->
+      <div class="step-label reveal" style="margin-top:32px;">Step 2 — Describe or Upload</div>
+      <div class="input-boxes reveal">
+
+        <!-- Box 1: Describe -->
+        <div class="input-box input-box-describe" id="describeBox" onclick="selectInputMode('describe')">
+          <div class="input-box-header">
+            <span class="input-box-icon">&#9998;</span>
+            <span class="input-box-title">Describe</span>
+          </div>
+          <textarea class="gen-textarea" id="charInput" autocomplete="off" data-1p-ignore
+            placeholder="Describe your character — personality, appearance, backstory, vibe..." onclick="event.stopPropagation()"></textarea>
+        </div>
+
+        <!-- Box 2: Camera / Photo -->
+        <div class="input-box input-box-camera" id="cameraBox" onclick="selectInputMode('camera')">
+          <div class="input-box-header">
+            <span class="input-box-icon">&#128247;</span>
+            <span class="input-box-title">Camera</span>
+          </div>
+          <div class="camera-status" id="cameraStatus">Take a selfie or upload a photo — AI turns you into a character</div>
+          <div class="camera-preview-wrap" id="cameraPreviewWrap" style="display:none;">
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <canvas id="cameraCanvas"></canvas>
+            <img id="uploadPreview" style="display:none; width:100%; border-radius:12px;" />
+          </div>
+          <div class="camera-controls" onclick="event.stopPropagation()">
+            <button class="camera-btn camera-btn-snap" id="cameraSnapBtn" onclick="selectInputMode('camera'); handleCameraSnap()">Start Camera</button>
+            <label class="camera-btn" style="background:rgba(107,29,158,0.1); border:1px solid rgba(107,29,158,0.3); color:var(--text-dim); cursor:pointer;" onclick="selectInputMode('camera')">
+              Upload Photo
+              <input type="file" id="photoUpload" accept="image/*" onchange="handlePhotoUpload(event)" style="display:none;" />
+            </label>
+            <button class="camera-btn camera-btn-retake" id="cameraRetakeBtn" onclick="retakePhoto()">Retake</button>
+          </div>
+          <div class="camera-status" id="cameraDesc" style="display:none; color:var(--zerg-green);"></div>
+        </div>
+
+      </div>
+
+      <div class="gen-controls reveal">
+        <button class="gen-btn" id="genBtn" onclick="runPipeline()">Generate</button>
+        <span class="gen-status-text" id="genStatusText"></span>
+      </div>
+
+      <div class="gen-no-key-warning" id="noKeyWarn">
+        No API key configured. Click <strong>API</strong> in the top-right to set your MegaNova key.
+      </div>
+
+      <div class="gen-error" id="genError"></div>
+
+      <!-- Progress tracker -->
+      <div class="progress-tracker" id="progressTracker">
+        <div class="progress-steps">
+          <div class="progress-pip" id="pip1"></div>
+          <div class="progress-pip" id="pip2"></div>
+          <div class="progress-pip" id="pip3"></div>
+        </div>
+        <div class="progress-log" id="progressLog">
+          <div class="log-line" id="log1"><span class="log-icon"></span> Step 1 &mdash; Capture description</div>
+          <div class="log-line" id="log2"><span class="log-icon"></span> Step 2 &mdash; Generate personality (Qwen 3.5 Plus)</div>
+          <div class="log-line" id="log3"><span class="log-icon"></span> Step 3 &mdash; Forge avatar (Seedream 4.5)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CARD SHOWCASE -->
+<section class="section" id="cardSection">
+  <div class="container">
+    <div class="section-label reveal">// Output</div>
+    <h2 class="reveal">Your <span class="accent-gold">REBORN 40K</span> Card</h2>
+
+    <div class="card-showcase reveal">
+      <!-- LEFT: Card + actions -->
+      <div>
+        <div class="reborn-card" id="resultCard">
+          <div class="card-header">
+            <div class="card-logo">REBORN 40K</div>
+            <div class="card-name" id="cardName">Kael Voidstrike</div>
+            <div class="card-faction" id="cardFaction">Void Corsairs</div>
+          </div>
+
+          <div class="card-portrait" id="cardPortrait">
+            <div class="card-portrait-icon" id="portraitIcon">&#9876;</div>
+            <div class="card-portrait-label">AI Generated</div>
+          </div>
+
+          <div class="card-backstory" id="cardBackstory">
+            &ldquo;Born in the orbital slums of Nexus-7, Kael earned his name raiding void convoys before the Syndicate recruited him as a corsair captain.&rdquo;
+          </div>
+
+          <div class="card-footer">
+            <div class="card-footer-logo">REBORN 40K</div>
+          </div>
+
+          <button class="regen-btn" id="regenBtn" onclick="regenerateImage()">Regenerate Image</button>
+        </div>
+
+        <!-- Arrow buttons -->
+        <div class="card-actions" id="cardActions">
+          <button class="action-arrow-btn btn-video" onclick="showVideoPanel()">
+            Animate Video <span class="arrow">&rarr;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Output panels -->
+      <div class="output-panels" id="outputPanels">
+
+        <!-- Video panel -->
+        <div class="output-panel panel-video" id="videoPanel">
+          <div class="output-panel-title">// Animate Video</div>
+          <textarea class="video-desc-input" id="videoDescInput" placeholder="Enhanced video description (optional)... e.g. 'eyes glowing, wind blowing cloak'"></textarea>
+          <button class="video-gen-btn" id="videoGenBtn" onclick="generateVideo()">Generate Video</button>
+          <div class="video-progress-wrap" id="videoProgressWrap">
+            <div class="video-progress-bar"><div class="video-progress-fill" id="videoProgressFill"></div></div>
+            <div class="video-progress-text" id="videoProgressText">Generating video... 0:00 / 5:00</div>
+          </div>
+          <video class="video-player" id="videoPlayer" controls loop autoplay muted></video>
+          <div class="video-caption" id="videoCaption">Animated Character</div>
+        </div>
+
+        <!-- Get Your Assets panel -->
+        <div class="output-panel panel-collect" id="collectPanel" style="border-color:rgba(255,215,0,0.2);">
+          <div class="output-panel-title" style="color:var(--gold);">// Get Your Creations</div>
+
+          <!-- QR Code -->
+          <div class="collect-qr-wrap" id="collectQrWrap">
+            <p style="font-size:14px; color:var(--text-dim); line-height:1.6; margin-bottom:12px;">Scan to save your character card &amp; video to your phone</p>
+            <div class="collect-qr" id="collectQr"></div>
+            <div class="collect-qr-hint">Point your phone camera at the QR code</div>
+          </div>
+
+          <!-- Divider -->
+          <div class="collect-divider"><span>or</span></div>
+
+          <!-- Email fallback -->
+          <div class="collect-email-wrap">
+            <p style="font-size:13px; color:var(--text-dim); line-height:1.5; margin-bottom:8px;">Receive via email</p>
+            <div style="display:flex; gap:10px;">
+              <input type="email" id="collectEmail" placeholder="your@email.com" style="flex:1; background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.2); border-radius:8px; padding:10px 14px; color:var(--text-primary); font-family:'Space Grotesk',sans-serif; font-size:14px; outline:none;" />
+              <button id="collectBtn" onclick="sendAssets()" style="padding:10px 20px; background:linear-gradient(135deg, var(--gold-dim), var(--gold)); border:none; border-radius:8px; color:var(--bg-deep); font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer;">Send</button>
+            </div>
+          </div>
+
+          <div id="collectStatus" style="font-size:13px; color:var(--zerg-green); letter-spacing:1px; display:none;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-output-note reveal">
+      <strong>Collectible card</strong> + <strong>animated video</strong>&mdash;yours to keep.
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallerySection">
+  <div class="container">
+    <div class="section-label reveal">// Community Creations</div>
+    <h2 class="reveal">The <span class="accent-cyan">Gallery</span></h2>
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-empty" id="galleryEmpty">No creations yet — be the first to generate a character!</div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox overlay -->
+<div class="gallery-lightbox" id="galleryLightbox" onclick="closeLightbox()">
+  <span class="gallery-lightbox-close">&times;</span>
+  <div id="galleryLightboxContent"></div>
+</div>
+
+<!-- TECH STACK -->
+<section class="section">
+  <div class="container">
+    <div class="section-label reveal">// The Stack</div>
+    <h2 class="reveal">The <span class="accent">Stack</span></h2>
+
+    <div class="tech-grid">
+      <div class="tech-card card-llm reveal">
+        <span class="tech-icon">&#9883;</span>
+        <div class="tech-name">Qwen 3.5 Plus</div>
+        <div class="tech-maker">LLM</div>
+        <div class="tech-role">Language &amp; personality generation. Transforms raw descriptions into structured character data with JSON output.</div>
+      </div>
+
+      <div class="tech-card card-img reveal">
+        <span class="tech-icon">&#9881;</span>
+        <div class="tech-name">Seedream 4.5</div>
+        <div class="tech-maker">Text-to-Image</div>
+        <div class="tech-role">Avatar generation. Creates detailed character portraits with optional photo reference for personalized results.</div>
+      </div>
+
+      <div class="tech-card card-vid reveal">
+        <span class="tech-icon">&#9654;</span>
+        <div class="tech-name">Wan 2.6 Flash</div>
+        <div class="tech-maker">Image-to-Video</div>
+        <div class="tech-role">Character animation. Brings static avatars to life with motion and expression via image-to-video synthesis.</div>
+      </div>
+
+    </div>
+
+    <div class="orchestrator-wrap reveal">
+      <div class="orchestrator-badge">
+        Orchestrated by <strong>MegaNova ANG Engine</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="closing-content reveal">
+    <h2>Try It Live</h2>
+    <div class="closing-tagline">Describe a soul. Watch it take shape.</div>
+    <p class="closing-summary">
+      Built by <strong>MegaNova</strong>.
+    </p>
+    <div class="closing-logos">
+      <span class="closing-logo-item">MegaNova</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-left">MegaNova</span>
+  <span class="footer-logo">MEGANOVA</span>
+  <span class="footer-right">REBORN 40K</span>
+</footer>
+
+<script>
+  // ========== CONFIG MANAGEMENT ==========
+  const STORAGE_KEY = 'reborn40k_config';
+
+  function getConfig() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch { return {}; }
+  }
+
+  // Auto-cleanup: purge corrupted API keys from localStorage on load
+  // (1Password/LastPass can autofill character descriptions into key field)
+  (function cleanupConfig() {
+    const cfg = getConfig();
+    let dirty = false;
+    if (cfg.apiKey && !cfg.apiKey.startsWith('sk-')) {
+      console.warn('Purged corrupted API key from localStorage (was not sk- prefix)');
+      cfg.apiKey = '';
+      dirty = true;
+    }
+    if (cfg.apiUrl && cfg.apiUrl.startsWith('sk-') && !cfg.apiKey) {
+      cfg.apiKey = cfg.apiUrl;
+      cfg.apiUrl = '';
+      dirty = true;
+    }
+    if (dirty) localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  })();
+
+  function toggleConfig() {
+    const overlay = document.getElementById('configOverlay');
+    const panel = document.getElementById('configPanel');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      overlay.classList.remove('open');
+      panel.classList.remove('open');
+    } else {
+      const cfg = getConfig();
+      document.getElementById('cfgApiUrl').value = cfg.apiUrl || '';
+      document.getElementById('cfgApiKey').value = cfg.apiKey || '';
+      overlay.classList.add('open');
+      panel.classList.add('open');
+    }
+  }
+
+  function saveConfig() {
+    let apiUrl = document.getElementById('cfgApiUrl').value.trim();
+    let apiKey = document.getElementById('cfgApiKey').value.trim();
+
+    // Detect API key accidentally placed in URL field
+    if (apiUrl.startsWith('sk-') && !apiKey) {
+      apiKey = apiUrl;
+      apiUrl = '';
+      document.getElementById('cfgApiKey').value = apiKey;
+      document.getElementById('cfgApiUrl').value = '';
+    }
+
+    // Reject non-API-key values (e.g. autofilled by password managers)
+    if (apiKey && !apiKey.startsWith('sk-')) {
+      document.getElementById('cfgApiKey').value = '';
+      apiKey = '';
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiUrl, apiKey }));
+    const status = document.getElementById('cfgStatus');
+    status.textContent = apiKey ? 'Saved' : 'Saved (need sk-... key)';
+    status.classList.add('show');
+    setTimeout(() => status.classList.remove('show'), 2000);
+    updateConfigIndicator();
+  }
+
+  function updateConfigIndicator() {
+    const cfg = getConfig();
+    const btn = document.getElementById('configToggle');
+    if (cfg.apiKey) {
+      btn.classList.add('has-key');
+      btn.textContent = 'API \u2713';
+    } else {
+      btn.classList.remove('has-key');
+      btn.textContent = 'API';
+    }
+  }
+
+  // ========== PIPELINE HELPERS ==========
+  const MODELS = {
+    llm: 'Qwen/Qwen3.5-Plus',
+    image: 'Bytedance/seedream-4-5-251128',
+    vision: 'Qwen/Qwen3.5-Plus',  // Qwen3.5-Plus supports text, image, video input natively
+    video_i2v: 'Alibaba/wan2.6-i2v-flash',
+  };
+
+  function getBaseUrl() {
+    const cfg = getConfig();
+    let url = (cfg.apiUrl || '').trim();
+    // Ignore if someone pasted an API key in the URL field
+    if (url.startsWith('sk-')) url = '';
+    url = (url || 'https://api.meganova.ai').replace(/\/+$/, '');
+    // Ensure https:// prefix
+    if (!url.startsWith('http')) url = 'https://' + url;
+    // Strip /v1 if present — we add it per-endpoint where needed
+    url = url.replace(/\/v1$/, '');
+    return url;
+  }
+
+  function getApiKey() {
+    const cfg = getConfig();
+    // Recover if key was saved in URL field
+    if (!cfg.apiKey && cfg.apiUrl && cfg.apiUrl.startsWith('sk-')) return cfg.apiUrl;
+    const key = cfg.apiKey || '';
+    // Validate: real API keys start with sk- and are short alphanumeric strings
+    if (key && !key.startsWith('sk-')) {
+      console.warn('Invalid API key in config (not sk- prefix), clearing it');
+      return '';
+    }
+    return key;
+  }
+
+  function setStepState(stepNum, state) {
+    const pip = document.getElementById('pip' + stepNum);
+    const log = document.getElementById('log' + stepNum);
+    const icon = log.querySelector('.log-icon');
+
+    pip.className = 'progress-pip';
+    log.className = 'log-line';
+
+    if (state === 'active') {
+      pip.classList.add('active');
+      log.classList.add('active');
+      icon.innerHTML = '<span class="spinner"></span>';
+    } else if (state === 'done') {
+      pip.classList.add('done');
+      log.classList.add('done');
+      icon.textContent = '\u2713';
+    } else if (state === 'error') {
+      pip.classList.add('error');
+      log.classList.add('error');
+      icon.textContent = '\u2717';
+    } else {
+      icon.textContent = '';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('genError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function hideError() {
+    document.getElementById('genError').classList.remove('show');
+  }
+
+  // ========== API CALLS ==========
+
+  async function callLLM(description) {
+    const systemPrompt = `You are a REBORN 40K character designer for a dark sci-fi universe where humanity is scattered across dying star systems, factions war over ancient technology, and psykers channel forbidden energies.
+
+FACTIONS (pick the best fit, or invent a subfaction):
+- Void Corsairs — pirates, smugglers, rogue traders of the deep void
+- Iron Covenant — zealous tech-priests who worship machine spirits
+- Hive Collective — bio-organic swarm intelligence, chitin and pheromones
+- Astral Wardens — psychic guardians, seers, monks of the astral current
+- Ember Legion — military shock troops, heavy armor, scorched earth doctrine
+- Null Syndicate — shadow operatives, assassins, information brokers
+
+Given a user's description, generate a complete character. Return ONLY valid JSON (no markdown, no code fences):
+{
+  "name": "dramatic, faction-appropriate character name",
+  "faction": "faction from above or a custom subfaction",
+  "backstory": "3-4 sentences with a HOOK — a secret, a wound, an unfinished mission",
+  "traits": ["trait1", "trait2", "trait3"],
+  "appearance": "visual portrait description (see rules below)"
+}
+
+BACKSTORY QUALITY:
+- BAD: "Kael was born on a ship. He became a pirate. He is brave." (boring résumé, no hook)
+- GOOD: "Kael earned his name raiding void convoys before the Syndicate recruited him — but the ghost-signal he intercepted on his last run won't stop whispering coordinates to a place that shouldn't exist."
+- Every backstory needs TENSION: a contradiction, a secret, or an unresolved threat.
+
+TRAITS: Pick 3 that create an interesting combination — at least one should be a flaw or contradiction (e.g. "loyal but paranoid", "brilliant but reckless").
+
+CRITICAL RULES FOR THE "appearance" FIELD:
+- This field will be sent to an AI image generator with strict content safety filters.
+- Describe ONLY: face, hair, eyes, skin color/tone, expression, pose, and ONE unique visual signature (glowing eyes, floating runes, bioluminescent veins, holographic tattoos).
+- DO NOT describe armor, clothing, or background — those are added automatically based on the faction.
+- DO NOT include: blood, gore, skulls, severed body parts, weapons, scars, wounds, bones, chains, spikes, trophies, or any violent imagery.
+- Keep it artistic and stylized: think "epic fantasy portrait" not "battlefield carnage".
+- Example good appearance: "A towering green-skinned figure with glowing amber eyes, sharp angular jawline, faintly luminous circuit-tattoos across the temples, intense determined expression, dramatic cinematic lighting."
+- Example BAD appearance: "A warrior with skulls on his belt and blood-soaked axes" — this WILL be rejected.
+- Example BAD appearance: "Wearing heavy bronze armor with a cloak" — DO NOT describe clothing/armor, it is injected separately.`;
+
+    const resp = await fetch(getBaseUrl() + '/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + getApiKey(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.llm,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: description },
+        ],
+        temperature: 0.9,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`LLM API error ${resp.status}: ${text.slice(0, 200)}`);
+    }
+
+    const data = await resp.json();
+    const content = data.choices[0].message.content;
+
+    // Parse JSON from response (strip code fences if present)
+    const cleaned = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    return JSON.parse(cleaned);
+  }
+
+  async function callImageGen(prompt, referenceImages = [], retries = 2) {
+    // Sanitize prompt: ASCII-safe, no special chars
+    const cleanPrompt = prompt
+      .replace(/[^\x20-\x7E]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 400);
+    console.debug('Image prompt:', cleanPrompt);
+    if (referenceImages.length) console.debug('Reference images:', referenceImages.length);
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const payload = {
+        model: MODELS.image,
+        prompt: cleanPrompt,
+        size: '2048x2048',
+      };
+
+      // Pass reference image via provider_options (Seedream 4.0 expects single string)
+      if (referenceImages.length > 0) {
+        payload.provider_options = { image: referenceImages[0] };
+      }
+
+      const resp = await fetch(getBaseUrl() + '/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + getApiKey(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Image API error ${resp.status}: ${text.slice(0, 200)}`);
+      }
+
+      const data = await resp.json();
+      console.debug('Image API status:', data.status);
+
+      // Handle server-side generation failure — retry
+      if (data.status === 'failed') {
+        console.warn(`Image generation failed (attempt ${attempt + 1}/${retries + 1}):`, data.message);
+        if (attempt < retries) {
+          await new Promise(r => setTimeout(r, 2000));
+          continue;
+        }
+        throw new Error('Image generation failed: ' + (data.message || 'unknown error'));
+      }
+
+      // Extract base64: response is {data: [{b64_json}]}
+      if (data.data && Array.isArray(data.data) && data.data[0]) {
+        return data.data[0].b64_json;
+      }
+      throw new Error('Unexpected image response format');
+    }
+    throw new Error('Image generation failed after retries');
+  }
+
+  async function callVideoGen(imageBase64, prompt) {
+    const imageUrl = 'data:image/png;base64,' + imageBase64;
+
+    // Submit video task
+    const submitResp = await fetch(getBaseUrl() + '/v1/videos/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + getApiKey(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.video_i2v,
+        prompt: prompt,
+        image_url: imageUrl,
+        n_seconds: 5,
+        resolution: '720p',
+      }),
+    });
+
+    if (!submitResp.ok) {
+      const text = await submitResp.text();
+      throw new Error(`Video submit error ${submitResp.status}: ${text.slice(0, 200)}`);
+    }
+
+    const submitData = await submitResp.json();
+    console.debug('Video submit response:', JSON.stringify(submitData).slice(0, 500));
+    const taskId = submitData.task_id || submitData.id || submitData.request_id;
+    if (!taskId) throw new Error('No task_id in video response. Keys: ' + Object.keys(submitData).join(', '));
+
+    // Poll for completion
+    const pollUrl = getBaseUrl() + '/v1/videos/generations/' + taskId;
+    const maxWait = 300000; // 5 minutes
+    const interval = 5000;
+    let elapsed = 0;
+
+    while (elapsed < maxWait) {
+      await new Promise(r => setTimeout(r, interval));
+      elapsed += interval;
+
+      const pollResp = await fetch(pollUrl, {
+        headers: { 'Authorization': 'Bearer ' + getApiKey() },
+      });
+
+      if (!pollResp.ok) continue; // retry on transient errors
+
+      const pollData = await pollResp.json();
+      console.debug(`Video poll (${elapsed/1000}s):`, pollData.status, pollData.url ? 'has url' : 'no url');
+
+      if (pollData.status === 'completed') {
+        return pollData.url || pollData.video_url;
+      }
+      if (pollData.status === 'failed') {
+        throw new Error('Video generation failed: ' + (pollData.error?.message || pollData.error || 'unknown'));
+      }
+      // else still processing, continue polling
+    }
+
+    throw new Error('Video generation timed out after 5 minutes');
+  }
+
+  // ========== CARD UPDATES ==========
+
+  function updateCard(character) {
+    document.getElementById('cardName').textContent = character.name || 'Unknown';
+    document.getElementById('cardFaction').textContent = character.faction || 'Unaligned';
+    document.getElementById('cardBackstory').innerHTML =
+      '&ldquo;' + (character.backstory || '...') + '&rdquo;';
+
+  }
+
+  function updatePortrait(base64) {
+    const portrait = document.getElementById('cardPortrait');
+    const icon = document.getElementById('portraitIcon');
+    if (icon) icon.style.display = 'none';
+
+    // Remove existing img if any
+    const existing = portrait.querySelector('img');
+    if (existing) existing.remove();
+
+    const img = document.createElement('img');
+    img.src = 'data:image/png;base64,' + base64;
+    img.alt = 'AI Generated Avatar';
+    portrait.prepend(img);
+  }
+
+  function showVideo(videoUrl) {
+    const player = document.getElementById('videoPlayer');
+    player.src = videoUrl;
+    player.classList.add('show');
+    document.getElementById('videoCaption').classList.add('show');
+    document.getElementById('videoProgressWrap').classList.remove('show');
+    document.getElementById('videoGenBtn').textContent = 'Regenerate Video';
+    document.getElementById('videoGenBtn').disabled = false;
+  }
+
+  // ========== VIDEO GENERATION (separate from pipeline) ==========
+
+  let lastImageBase64 = null;
+  let lastCharacter = null;
+  let lastImagePrompt = null;
+  let lastVideoUrl = null;
+  let imageGenCounter = 0;
+  let videoGenRunning = false;
+  let videoProgressTimer = null;
+  let cameraStream = null;
+  let cameraPhotoBase64 = null;  // captured photo for reference
+  let inputMode = 'describe';    // 'describe' or 'camera'
+  let selectedFaction = null;    // selected faction key
+
+  async function generateVideo() {
+    if (videoGenRunning || !lastImageBase64) return;
+    videoGenRunning = true;
+
+    const myImageGen = imageGenCounter;
+    const extraDesc = (document.getElementById('videoDescInput')?.value || '').trim();
+    const videoPrompt = extraDesc
+      ? `Cinematic character reveal: slow camera push-in, ${extraDesc}. Volumetric lighting, shallow depth of field, dark atmospheric background. 10 seconds.`
+      : 'Cinematic character reveal: slow camera push-in, the character breathes slowly with subtle eye movement and micro-expressions. Ambient particles drift through volumetric light. Shallow depth of field, dark atmospheric background with gentle light flicker. 10 seconds.';
+
+    const btn = document.getElementById('videoGenBtn');
+    const progressWrap = document.getElementById('videoProgressWrap');
+    const progressFill = document.getElementById('videoProgressFill');
+    const progressText = document.getElementById('videoProgressText');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    document.getElementById('videoPlayer').classList.remove('show');
+    document.getElementById('videoCaption').classList.remove('show');
+
+    // Show progress bar
+    progressWrap.classList.add('show');
+    progressFill.style.width = '0%';
+    progressFill.style.transition = 'none';
+
+    // Animate progress bar over 5 minutes (300s)
+    const maxSeconds = 300;
+    let elapsed = 0;
+    videoProgressTimer = setInterval(() => {
+      elapsed++;
+      const pct = Math.min((elapsed / maxSeconds) * 100, 98); // cap at 98% until done
+      progressFill.style.transition = 'width 1s linear';
+      progressFill.style.width = pct + '%';
+      const m = Math.floor(elapsed / 60);
+      const s = String(elapsed % 60).padStart(2, '0');
+      progressText.textContent = `Generating video... ${m}:${s} / 5:00`;
+    }, 1000);
+
+    try {
+      const videoUrl = await callVideoGen(lastImageBase64, videoPrompt);
+      clearInterval(videoProgressTimer);
+      progressFill.style.width = '100%';
+      progressText.textContent = 'Complete!';
+
+      // Discard if image was regenerated while we were generating
+      if (myImageGen !== imageGenCounter) {
+        btn.textContent = 'Generate Video';
+        btn.disabled = false;
+        progressWrap.classList.remove('show');
+        videoGenRunning = false;
+        return;
+      }
+
+      showVideo(videoUrl);
+      lastVideoUrl = videoUrl;
+      updateCollectVisibility();
+
+      // Save video to gallery
+      saveGalleryItem('video', {
+        name: lastCharacter?.name || 'Unknown',
+        faction: lastCharacter?.faction || '',
+        videoUrl: videoUrl,
+      });
+    } catch (err) {
+      clearInterval(videoProgressTimer);
+
+      if (myImageGen !== imageGenCounter) {
+        btn.textContent = 'Generate Video';
+        btn.disabled = false;
+        progressWrap.classList.remove('show');
+        videoGenRunning = false;
+        return;
+      }
+      console.error('Video generation error:', err);
+      progressText.textContent = 'Failed: ' + (err.message || 'Unknown error');
+      progressFill.style.background = 'var(--hive-orange)';
+      btn.textContent = 'Retry Video';
+      btn.disabled = false;
+    }
+
+    videoGenRunning = false;
+  }
+
+  // ========== REGENERATE IMAGE ==========
+  async function regenerateImage() {
+    if (!lastCharacter || !lastImagePrompt) return;
+
+    const btn = document.getElementById('regenBtn');
+    btn.disabled = true;
+    btn.textContent = 'Regenerating...';
+
+    // Clear downstream outputs
+    lastVideoUrl = null;
+    resetVideoPanel();
+
+    try {
+      imageGenCounter++;
+      lastImageBase64 = await callImageGen(lastImagePrompt);
+      updatePortrait(lastImageBase64);
+    } catch (err) {
+      console.error('Regenerate error:', err);
+      showError('Image regeneration failed: ' + (err.message || 'Unknown error'));
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Regenerate Image';
+  }
+
+  function updateCollectVisibility() {
+    if (lastVideoUrl || lastImageBase64) {
+      document.getElementById('collectPanel').classList.add('show');
+      generateQrCode();
+    } else {
+      document.getElementById('collectPanel').classList.remove('show');
+    }
+  }
+
+  function generateQrCode() {
+    const qrContainer = document.getElementById('collectQr');
+    qrContainer.innerHTML = '';
+
+    // Build QR target URL — video URL is most useful at events (direct link to asset)
+    let qrTarget = '';
+    if (lastVideoUrl) {
+      qrTarget = lastVideoUrl;
+    } else if (lastImageBase64) {
+      // Image is local base64 — create a blob URL users can open
+      try {
+        const byteChars = atob(lastImageBase64);
+        const byteArray = new Uint8Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+        const blob = new Blob([byteArray], { type: 'image/png' });
+        qrTarget = URL.createObjectURL(blob);
+      } catch (e) {
+        qrTarget = window.location.href.split('?')[0];
+      }
+    }
+
+    if (!qrTarget) return;
+
+    try {
+      const canvas = document.createElement('canvas');
+      qrContainer.appendChild(canvas);
+      new QRious({
+        element: canvas,
+        value: qrTarget,
+        size: 180,
+        foreground: '#1a0a2e',
+        background: '#ffffff',
+        level: 'M',
+      });
+    } catch (e) {
+      qrContainer.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:20px;">QR generation failed</div>';
+    }
+  }
+
+  function showVideoPanel() {
+    document.getElementById('videoPanel').classList.add('show');
+  }
+
+  function resetVideoPanel() {
+    document.getElementById('videoPanel').classList.remove('show');
+    document.getElementById('videoPlayer').classList.remove('show');
+    document.getElementById('videoCaption').classList.remove('show');
+    document.getElementById('videoProgressWrap').classList.remove('show');
+    document.getElementById('videoGenBtn').textContent = 'Generate Video';
+    document.getElementById('videoGenBtn').disabled = false;
+    document.getElementById('videoDescInput').value = '';
+    updateCollectVisibility();
+  }
+
+  // ========== CAMERA & VISION ==========
+  function selectFaction(el, faction) {
+    // Deselect all
+    document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('selected'));
+    // Select this one
+    el.classList.add('selected');
+    selectedFaction = faction;
+    // Pre-fill describe box with example only if already in describe mode and empty
+    if (inputMode === 'describe') {
+      const input = document.getElementById('charInput');
+      if (!input.value.trim()) {
+        input.value = el.dataset.v;
+      }
+    }
+  }
+
+  function selectInputMode(mode) {
+    inputMode = mode;
+    document.getElementById('describeBox').classList.toggle('active', mode === 'describe');
+    document.getElementById('cameraBox').classList.toggle('active', mode === 'camera');
+  }
+
+  // Start with describe active
+  setTimeout(() => selectInputMode('describe'), 0);
+
+  async function startCamera() {
+    const video = document.getElementById('cameraVideo');
+    const status = document.getElementById('cameraStatus');
+    const snapBtn = document.getElementById('cameraSnapBtn');
+
+    // Check if camera API is available (requires HTTPS or localhost)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      status.textContent = 'Camera requires HTTPS. Use "Upload Photo" instead.';
+      snapBtn.disabled = true;
+      snapBtn.style.opacity = '0.4';
+      return;
+    }
+
+    try {
+      status.textContent = 'Requesting camera access...';
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
+        audio: false,
+      });
+      video.srcObject = cameraStream;
+      video.classList.add('streaming');
+      document.getElementById('cameraPreviewWrap').style.display = '';
+      status.textContent = 'Camera ready — strike a pose!';
+      snapBtn.textContent = 'Snap Photo';
+      snapBtn.onclick = snapPhoto;
+    } catch (err) {
+      console.error('Camera error:', err);
+      status.textContent = 'Camera not available. Use "Upload Photo" instead.';
+      snapBtn.disabled = true;
+      snapBtn.style.opacity = '0.4';
+    }
+  }
+
+  function stopCamera() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(t => t.stop());
+      cameraStream = null;
+    }
+  }
+
+  function handleCameraSnap() {
+    if (!cameraStream) {
+      startCamera();
+    } else {
+      snapPhoto();
+    }
+  }
+
+  function snapPhoto() {
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.getElementById('cameraCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    cameraPhotoBase64 = dataUrl.split(',')[1];
+
+    showCapturedState(canvas, video);
+    stopCamera();
+  }
+
+  function handlePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      cameraPhotoBase64 = dataUrl.split(',')[1];
+
+      // Show preview image
+      document.getElementById('cameraPreviewWrap').style.display = '';
+      const preview = document.getElementById('uploadPreview');
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+
+      // Hide video and canvas
+      document.getElementById('cameraVideo').classList.remove('streaming');
+      document.getElementById('cameraCanvas').classList.remove('show');
+
+      document.getElementById('cameraRetakeBtn').classList.add('show');
+      document.getElementById('cameraSnapBtn').style.display = 'none';
+      document.getElementById('cameraStatus').textContent = 'Photo ready! Click Generate to create your character.';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showCapturedState(canvas, video) {
+    canvas.classList.add('show');
+    video.classList.remove('streaming');
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('cameraRetakeBtn').classList.add('show');
+    document.getElementById('cameraSnapBtn').style.display = 'none';
+    document.getElementById('cameraStatus').textContent = 'Photo captured! Click Generate to create your character.';
+  }
+
+  function retakePhoto() {
+    const canvas = document.getElementById('cameraCanvas');
+    const video = document.getElementById('cameraVideo');
+
+    canvas.classList.remove('show');
+    video.classList.remove('streaming');
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('cameraPreviewWrap').style.display = 'none';
+    document.getElementById('cameraRetakeBtn').classList.remove('show');
+    document.getElementById('cameraSnapBtn').style.display = '';
+    document.getElementById('cameraSnapBtn').disabled = false;
+    document.getElementById('cameraSnapBtn').style.opacity = '';
+    document.getElementById('cameraSnapBtn').textContent = 'Start Camera';
+    document.getElementById('cameraSnapBtn').onclick = handleCameraSnap;
+    document.getElementById('cameraDesc').style.display = 'none';
+    document.getElementById('photoUpload').value = '';
+    cameraPhotoBase64 = null;
+  }
+
+  async function describePhotoWithVision(photoBase64) {
+    const imageUrl = 'data:image/jpeg;base64,' + photoBase64;
+
+    const resp = await fetch(getBaseUrl() + '/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + getApiKey(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS.vision,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a character designer. Given a photo of a person, describe their appearance in a way suitable for creating a sci-fi fantasy character inspired by them. Focus on: face shape, hair style/color, eye color, skin tone, expression, any distinctive features. Then suggest a dramatic sci-fi fantasy persona that would suit their look. Output a short paragraph (3-4 sentences) as a character description prompt. Do NOT mention "photo" or "picture" — write as if describing a character concept directly.',
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: imageUrl } },
+              { type: 'text', text: 'Create a REBORN 40K character inspired by this person. Describe them as an epic sci-fi fantasy character.' },
+            ],
+          },
+        ],
+        temperature: 0.9,
+        max_tokens: 300,
+      }),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`Vision API error ${resp.status}: ${text.slice(0, 200)}`);
+    }
+
+    const data = await resp.json();
+    return data.choices[0].message.content.trim();
+  }
+
+  // ========== EMAIL ASSET DELIVERY ==========
+  async function sendAssets() {
+    const email = document.getElementById('collectEmail').value.trim();
+    if (!email || !email.includes('@')) {
+      document.getElementById('collectEmail').focus();
+      return;
+    }
+
+    const btn = document.getElementById('collectBtn');
+    const status = document.getElementById('collectStatus');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    status.style.display = 'none';
+
+    try {
+      const assets = {};
+      if (lastImageBase64) assets.card_image = 'data:image/png;base64,' + lastImageBase64;
+      if (lastVideoUrl) assets.video_url = lastVideoUrl;
+
+      const resp = await fetch(getBaseUrl() + '/v1/assets/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + getApiKey(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          character_name: lastCharacter?.name || 'REBORN 40K Character',
+          assets,
+        }),
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Email error ${resp.status}: ${text.slice(0, 200)}`);
+      }
+
+      status.textContent = 'Assets sent to ' + email + '!';
+      status.style.color = 'var(--zerg-green)';
+      status.style.display = 'block';
+    } catch (err) {
+      console.error('Email error:', err);
+      status.textContent = 'Failed: ' + (err.message || 'Unknown error');
+      status.style.color = 'var(--hive-orange)';
+      status.style.display = 'block';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send';
+  }
+
+  // ========== MAIN PIPELINE ==========
+
+  let pipelineRunning = false;
+
+  async function runPipeline() {
+    if (pipelineRunning) return;
+
+    // Determine input based on mode
+    let input = '';
+    let referencePhoto = null;
+
+    if (inputMode === 'camera') {
+      if (!cameraPhotoBase64) {
+        document.getElementById('cameraStatus').textContent = 'Please snap a photo first!';
+        return;
+      }
+      referencePhoto = cameraPhotoBase64;
+      input = '__CAMERA_MODE__';  // sentinel — will be replaced by vision description
+    } else {
+      input = document.getElementById('charInput').value.trim();
+      if (!input) {
+        document.getElementById('charInput').focus();
+        return;
+      }
+    }
+
+    if (!getApiKey()) {
+      document.getElementById('noKeyWarn').style.display = 'block';
+      return;
+    }
+    document.getElementById('noKeyWarn').style.display = 'none';
+
+    pipelineRunning = true;
+    hideError();
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    btn.classList.add('running');
+    btn.textContent = 'Running...';
+
+    const tracker = document.getElementById('progressTracker');
+    tracker.classList.add('active');
+
+    // Reset all steps
+    for (let i = 1; i <= 3; i++) setStepState(i, 'pending');
+
+    const statusText = document.getElementById('genStatusText');
+    lastCharacter = null;
+    lastImageBase64 = null;
+    lastImagePrompt = null;
+    lastVideoUrl = null;
+
+    try {
+      // Step 1 — Capture input (or describe photo with vision)
+      setStepState(1, 'active');
+      if (referencePhoto) {
+        statusText.textContent = 'Analyzing your photo with AI vision...';
+        const cameraDescEl = document.getElementById('cameraDesc');
+        input = await describePhotoWithVision(referencePhoto);
+        cameraDescEl.textContent = 'Vision: "' + input.slice(0, 120) + '..."';
+        cameraDescEl.style.display = 'block';
+        console.debug('Vision description:', input);
+      } else {
+        statusText.textContent = 'Capturing description...';
+        await new Promise(r => setTimeout(r, 300));
+      }
+      setStepState(1, 'done');
+
+      // Step 2 — LLM personality
+      setStepState(2, 'active');
+      statusText.textContent = 'Generating personality...';
+      const llmInput = selectedFaction
+        ? `[Faction: ${selectedFaction}] ${input}`
+        : input;
+      lastCharacter = await callLLM(llmInput);
+      updateCard(lastCharacter);
+      setStepState(2, 'done');
+
+      // Scroll to card section
+      document.getElementById('cardSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Step 3 — Image generation
+      setStepState(3, 'active');
+      statusText.textContent = 'Forging avatar...';
+      let appearance = lastCharacter.appearance || `${lastCharacter.name}, ${(lastCharacter.traits || []).slice(0, 3).join(', ')}`;
+      // Safety net: strip violent terms that may trip content filters
+      const unsafeTerms = /\b(skull|skulls|blood|bloody|gore|gory|severed|dismembered|corpse|entrails|intestines|decapitat|mutilat|impale|flesh|bone fragments|trophy|trophies of|nailed to|strung with|dripping with|soaked in|viscera|wound|scar|axe|sword|weapon|blade|gun|pistol|rifle|chainsaw|dagger|spear|mace|flail|cleaver|hammer of war)\b/gi;
+      appearance = appearance.replace(unsafeTerms, '').replace(/\s+/g, ' ').trim();
+
+      // Faction-specific visual style for 40K aesthetic
+      const factionStyles = {
+        'void corsairs':   'battle-scarred dark teal naval longcoat over layered void-rated leather armor with tarnished silver buckles and brass fittings, asymmetric shoulder guard with scratched star-chart engravings, one cybernetic eye glowing cold blue, holographic wrist-nav projecting faint constellation map, trophy chain of salvaged ship tags hanging from belt, deep space nebula background with distant dying stars and drifting wreckage, dramatic side-lighting from a distant sun, teal and gunmetal silver and cold blue palette',
+        'iron covenant':   'massive ornate bronze-gold power armor with exposed brass gears and pistons at joints, glowing orange circuitry veins running through chest plate and forearms, mechanical halo of spinning cogwheels behind head, one arm replaced with intricate mechanical prosthetic with too many fingers, incense burners mounted on shoulders trailing sacred smoke, background of a vast cathedral-forge with molten rivers of metal and towering pipe organs, warm amber uplighting from forge below, bronze-gold and deep red and molten orange palette',
+        'hive collective': 'organic chitinous exoskeleton armor that grows from the skin with ridged plates and overlapping scales, bioluminescent toxic-green veins pulsing visibly beneath semi-translucent pale skin, mandible-like jaw modifications, clusters of small secondary eyes on temples, spore clouds and floating bio-particles in the air, tendrils of organic matter connecting to a living hive-wall background with pulsing egg sacs and organic tunnels, eerie green underlighting, dark olive-green and bio-purple and toxic-green glow palette',
+        'astral wardens':  'layered flowing ethereal silk robes in deep indigo over slim silver-white ceremonial plate armor with psychic ward engravings, crown of slowly orbiting luminous psychic runes around shaved or hooded head, third-eye crystal embedded in forehead radiating soft white light, hands emanating faint blue-white psychic flame, levitating slightly off ground with robes billowing in psychic wind, background of vast astral plane with aurora curtains and floating geometric temple fragments, soft omnidirectional glow, indigo and silver-white and pale blue-white palette',
+        'ember legion':    'massive thick battle-worn ceramite power armor painted deep crimson with charcoal-black trim, scorched and heat-cracked edges on shoulder pads and gauntlets showing orange-hot metal beneath, glowing ember particles rising continuously from armor vents, heat-haze distortion around the figure, legion skull-and-flame insignia etched into chest plate, tattered battle banner on back-mounted pole, background of a burning fortress city with collapsing walls and ash-filled orange sky, harsh firelight from below, deep crimson and charcoal-black and molten orange palette',
+        'null syndicate':  'form-fitting matte-black stealth bodysuit with hexagonal adaptive camouflage panels that shimmer between visible and invisible, sleek featureless data-stream visor covering upper face with scrolling violet code reflections, thin blade-like antenna on one temple, digital shadow tendrils pooling at feet like living darkness, neural interface ports along spine visible through suit cutouts, background of rain-slicked neon-noir megacity rooftop at night with holographic advertisements in distance, dramatic rim-lighting in electric violet, jet black and deep charcoal and electric violet palette',
+      };
+      const faction = (selectedFaction || lastCharacter.faction || '').toLowerCase();
+      let factionStyle = '';
+      let factionKey = '';
+      // Score each faction by how many words match — pick the best match, not just first substring hit
+      let bestScore = 0;
+      for (const [key, style] of Object.entries(factionStyles)) {
+        const words = key.split(' ');
+        const score = words.filter(w => faction.includes(w)).length;
+        if (score > bestScore) {
+          bestScore = score;
+          factionStyle = style;
+          factionKey = key;
+        }
+      }
+      if (!factionStyle) factionStyle = 'sci-fi fantasy armor with glowing energy accents, dramatic atmospheric background, deep purple and gold palette';
+
+      console.debug('Faction match:', { selectedFaction, llmFaction: lastCharacter.faction, resolved: faction, matchedKey: factionKey || 'NONE (default)' });
+      console.debug('Faction style:', factionStyle);
+
+      // Put faction style FIRST so it dominates the image — appearance details follow
+      const imagePrompt = `REBORN 40K character portrait. MUST WEAR: ${factionStyle}. Character: ${appearance}. Style: digital fantasy concept art, painterly brushstrokes, rim lighting, cinematic composition. Epic and atmospheric. Volumetric fog and floating particles.`;
+      lastImagePrompt = imagePrompt;
+      imageGenCounter++;
+      // Pass camera photo as reference image for Seedream if available
+      const refImages = referencePhoto ? ['data:image/jpeg;base64,' + referencePhoto] : [];
+      lastImageBase64 = await callImageGen(imagePrompt, refImages);
+      updatePortrait(lastImageBase64);
+      setStepState(3, 'done');
+
+      // Save card screenshot to gallery
+      captureCardToGallery();
+
+      // Show regenerate button
+      document.getElementById('regenBtn').classList.add('show');
+      document.getElementById('cardActions').classList.add('show');
+
+      statusText.textContent = 'Card ready! Choose your next creation below.';
+      btn.textContent = 'Generate Again';
+      updateCollectVisibility();
+
+    } catch (err) {
+      console.error('Pipeline error:', err);
+      // Mark current step as error
+      for (let i = 1; i <= 3; i++) {
+        const pip = document.getElementById('pip' + i);
+        if (pip.classList.contains('active')) {
+          setStepState(i, 'error');
+          break;
+        }
+      }
+      showError(err.message || 'An unexpected error occurred');
+      statusText.textContent = 'Error — see details below';
+      btn.textContent = 'Retry';
+    }
+
+    btn.disabled = false;
+    btn.classList.remove('running');
+    pipelineRunning = false;
+  }
+
+  // ========== GALLERY ==========
+  const GALLERY_KEY = 'reborn40k_gallery';
+  const MAX_GALLERY = 50;
+
+  function getGallery() {
+    try { return JSON.parse(localStorage.getItem(GALLERY_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  async function captureCardToGallery() {
+    try {
+      const cardEl = document.getElementById('resultCard');
+      if (!cardEl || typeof html2canvas === 'undefined') return;
+      const canvas = await html2canvas(cardEl, {
+        backgroundColor: '#0a0514',
+        scale: 2,
+        useCORS: true,
+      });
+      // Full image as JPEG to keep localStorage under limits
+      const fullImage = canvas.toDataURL('image/jpeg', 0.85);
+      // Create smaller thumbnail
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 300;
+      thumbCanvas.height = 400;
+      const ctx = thumbCanvas.getContext('2d');
+      ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 300, 400);
+      const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.6);
+      saveGalleryItem('card', {
+        name: lastCharacter?.name || 'Unknown',
+        faction: lastCharacter?.faction || '',
+        thumbnail,
+        fullImage,
+      });
+    } catch (e) {
+      console.warn('Card capture failed:', e);
+    }
+  }
+
+  function saveGalleryItem(type, data) {
+    const gallery = getGallery();
+    const item = {
+      id: Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      type,
+      name: data.name || 'Unknown',
+      faction: data.faction || '',
+      timestamp: Date.now(),
+    };
+    if (type === 'card') {
+      item.thumbnail = data.thumbnail;
+      item.fullImage = data.fullImage;
+      gallery.unshift(item);
+      if (gallery.length > MAX_GALLERY) gallery.length = MAX_GALLERY;
+      try {
+        localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+      } catch (e) {
+        // localStorage full — drop fullImage to save space, keep thumbnail
+        console.warn('Gallery storage full, saving thumbnail only');
+        item.fullImage = null;
+        // Also trim older fullImages
+        gallery.forEach((g, i) => { if (i > 5) g.fullImage = null; });
+        try { localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery)); } catch (e2) { /* give up */ }
+      }
+      renderGallery();
+    } else if (type === 'video' && data.videoUrl) {
+      item.videoUrl = data.videoUrl;
+      // Use most recent card screenshot as video thumbnail
+      const cardItem = getGallery().find(g => g.type === 'card');
+      if (cardItem) item.thumbnail = cardItem.thumbnail;
+      gallery.unshift(item);
+      if (gallery.length > MAX_GALLERY) gallery.length = MAX_GALLERY;
+      localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+      renderGallery();
+    }
+  }
+
+  function renderGallery() {
+    const grid = document.getElementById('galleryGrid');
+    const empty = document.getElementById('galleryEmpty');
+    const gallery = getGallery();
+
+    if (gallery.length === 0) {
+      empty.style.display = 'block';
+      // Remove all items except empty
+      grid.querySelectorAll('.gallery-item').forEach(el => el.remove());
+      return;
+    }
+
+    empty.style.display = 'none';
+    // Clear and rebuild
+    grid.querySelectorAll('.gallery-item').forEach(el => el.remove());
+
+    gallery.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'gallery-item';
+      el.onclick = () => openLightbox(item);
+
+      const badge = item.type === 'video' ? '<div class="gallery-item-badge badge-video">Video</div>' : '';
+      const media = item.thumbnail
+        ? `<img src="${item.thumbnail}" alt="${item.name}" loading="lazy">`
+        : `<div style="width:100%;aspect-ratio:1;background:rgba(107,29,158,0.1);display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;">No preview</div>`;
+
+      const ago = timeAgo(item.timestamp);
+
+      el.innerHTML = `
+        ${media}
+        ${badge}
+        <div class="gallery-item-info">
+          <div class="gallery-item-name">${item.name}</div>
+          <div class="gallery-item-faction">${item.faction || ago}</div>
+        </div>
+      `;
+      grid.appendChild(el);
+    });
+  }
+
+  function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+  }
+
+  function openLightbox(item) {
+    const lb = document.getElementById('galleryLightbox');
+    const content = document.getElementById('galleryLightboxContent');
+    const imgSrc = item.fullImage || item.thumbnail;
+    if (item.type === 'video' && item.videoUrl) {
+      content.innerHTML = `<video src="${item.videoUrl}" controls autoplay loop style="max-width:90vw;max-height:85vh;border-radius:12px;"></video>`;
+    } else if (imgSrc) {
+      content.innerHTML = `<img src="${imgSrc}" alt="${item.name}" style="max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 0 60px rgba(255,215,0,0.15);">`;
+    }
+    lb.classList.add('show');
+  }
+
+  function closeLightbox() {
+    const lb = document.getElementById('galleryLightbox');
+    lb.classList.remove('show');
+    document.getElementById('galleryLightboxContent').innerHTML = '';
+  }
+
+  // Render gallery on page load
+  renderGallery();
+
+  // ========== SCROLL REVEAL ==========
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-left').forEach(el => {
+    observer.observe(el);
+  });
+
+  // Sticky nav hide on scroll down, show on scroll up
+  let lastScroll = 0;
+  const nav = document.querySelector('.conf-nav');
+  window.addEventListener('scroll', () => {
+    const current = window.scrollY;
+    if (current > lastScroll && current > 100) {
+      nav.style.transform = 'translateY(-100%)';
+    } else {
+      nav.style.transform = 'translateY(0)';
+    }
+    lastScroll = current;
+  });
+
+  // Init config indicator on load
+  updateConfigIndicator();
+</script>
+
+</body>
+</html>
