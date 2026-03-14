@@ -2687,13 +2687,16 @@ CRITICAL RULES FOR THE "appearance" FIELD:
         const canvas = await html2canvas(cardEl, { backgroundColor: '#0a0514', scale: 2, useCORS: true });
         cardDataUrl = canvas.toDataURL('image/jpeg', 0.85);
       }
-      const resp = await fetch(window.location.origin + '/api/upload', {
+      const resp = await fetch(getBaseUrl() + '/v1/assets/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': 'Bearer ' + getApiKey(),
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           card_image: cardDataUrl,
           video_url: lastVideoUrl || null,
-          name: lastCharacter?.name || 'Unknown',
+          character_name: lastCharacter?.name || 'Unknown',
           faction: lastCharacter?.faction || '',
         }),
       });
