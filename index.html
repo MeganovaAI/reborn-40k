@@ -1161,6 +1161,89 @@
     z-index: 1;
   }
 
+  .card-dossier {
+    margin: 14px 0 12px;
+    padding: 12px;
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 8px;
+    background: rgba(0,229,255,0.035);
+    position: relative;
+    z-index: 1;
+  }
+
+  .dossier-title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--mesh-cyan);
+    font-weight: 700;
+    margin-bottom: 9px;
+  }
+
+  .dossier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .dossier-stat {
+    min-width: 0;
+  }
+
+  .dossier-label {
+    display: block;
+    font-size: 7px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  .dossier-value {
+    display: block;
+    font-size: 10px;
+    line-height: 1.25;
+    color: var(--text-primary);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .dossier-abilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .dossier-ability {
+    padding: 3px 6px;
+    border: 1px solid rgba(255,215,0,0.18);
+    border-radius: 999px;
+    background: rgba(255,215,0,0.045);
+    color: var(--gold);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .dossier-mission {
+    border-top: 1px solid rgba(255,215,0,0.1);
+    padding-top: 8px;
+    font-size: 9px;
+    line-height: 1.45;
+    color: var(--text-dim);
+  }
+
+  .dossier-mission strong {
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 8px;
+  }
+
   .card-footer {
     text-align: center;
     padding-top: 12px;
@@ -2031,6 +2114,37 @@
             &ldquo;Born in the orbital slums of Nexus-7, Kael earned his name raiding void convoys before the Syndicate recruited him as a corsair captain.&rdquo;
           </div>
 
+          <div class="card-dossier" id="cardDossier">
+            <div class="dossier-title">Mission Dossier</div>
+            <div class="dossier-grid">
+              <div class="dossier-stat">
+                <span class="dossier-label">Role</span>
+                <span class="dossier-value" id="dossierRole">Void Raider</span>
+              </div>
+              <div class="dossier-stat">
+                <span class="dossier-label">Threat</span>
+                <span class="dossier-value" id="dossierThreat">Omega-7</span>
+              </div>
+              <div class="dossier-stat">
+                <span class="dossier-label">Relic</span>
+                <span class="dossier-value" id="dossierRelic">Ghost Compass</span>
+              </div>
+              <div class="dossier-stat">
+                <span class="dossier-label">Rival</span>
+                <span class="dossier-value" id="dossierRival">Null Syndicate</span>
+              </div>
+            </div>
+            <div class="dossier-abilities" id="dossierAbilities">
+              <span class="dossier-ability">Ghost Signal</span>
+              <span class="dossier-ability">Void Step</span>
+              <span class="dossier-ability">Relic Sabotage</span>
+            </div>
+            <div class="dossier-mission">
+              <strong>Mission:</strong>
+              <span id="dossierMission">Recover a dead fleet's black-box relic before its coordinates erase themselves.</span>
+            </div>
+          </div>
+
           <div class="card-footer">
             <div class="card-footer-logo">REBORN 40K</div>
           </div>
@@ -2058,7 +2172,7 @@
             <div class="video-progress-bar"><div class="video-progress-fill" id="videoProgressFill"></div></div>
             <div class="video-progress-text" id="videoProgressText">Generating video... 0:00 / 5:00</div>
           </div>
-          <video class="video-player" id="videoPlayer" controls loop autoplay muted></video>
+          <video class="video-player" id="videoPlayer" controls loop autoplay></video>
           <div class="video-caption" id="videoCaption">Animated Character</div>
         </div>
 
@@ -2257,7 +2371,7 @@
 
   // ========== PIPELINE HELPERS ==========
   const MODELS = {
-    llm: 'Qwen/Qwen3.5-Plus',
+    llm: 'gemini/gemini-3.5-flash',
     image: 'Bytedance/seedream-4-5-251128',
     vision: 'Qwen/Qwen3.5-Plus',  // Qwen3.5-Plus supports text, image, video input natively
     video_i2v: 'Alibaba/wan2.6-i2v-flash',
@@ -2343,7 +2457,16 @@ Given a user's description, generate a complete character. Return ONLY valid JSO
   "faction": "faction from above or a custom subfaction",
   "backstory": "3-4 sentences with a HOOK — a secret, a wound, an unfinished mission",
   "traits": ["trait1", "trait2", "trait3"],
-  "appearance": "visual portrait description (see rules below)"
+  "appearance": "visual portrait description (see rules below)",
+  "spokenLine": "one short, character-specific line of dialogue, 4-9 words",
+  "dossier": {
+    "role": "short playable class or battlefield role, 1-3 words",
+    "threatRating": "dramatic rating like Omega-7 or Sigma-4",
+    "relic": "unique personal relic, tool, or artifact, 1-4 words",
+    "rival": "enemy faction or nemesis, 1-4 words",
+    "abilities": ["ability1", "ability2", "ability3"],
+    "mission": "one concise mission briefing sentence"
+  }
 }
 
 BACKSTORY QUALITY:
@@ -2352,6 +2475,10 @@ BACKSTORY QUALITY:
 - Every backstory needs TENSION: a contradiction, a secret, or an unresolved threat.
 
 TRAITS: Pick 3 that create an interesting combination — at least one should be a flaw or contradiction (e.g. "loyal but paranoid", "brilliant but reckless").
+
+DOSSIER: Make it feel collectible and playable. Abilities should be vivid but concise, mission should name a concrete objective and tension, and rival should create immediate conflict.
+
+SPOKEN LINE: Write one short line the character would say in a cinematic reveal. Keep it punchy, first-person when possible, and under 10 words. Do not use profanity or graphic violent threats.
 
 CRITICAL RULES FOR THE "appearance" FIELD:
 - This field will be sent to an AI image generator with strict content safety filters.
@@ -2376,7 +2503,7 @@ CRITICAL RULES FOR THE "appearance" FIELD:
           { role: 'user', content: description },
         ],
         temperature: 0.9,
-        max_tokens: 1000,
+        max_tokens: 1300,
       }),
     });
 
@@ -2513,12 +2640,93 @@ CRITICAL RULES FOR THE "appearance" FIELD:
 
   // ========== CARD UPDATES ==========
 
+  function pickFallbackRival(faction) {
+    const rivals = {
+      'void corsairs': 'Iron Covenant',
+      'iron covenant': 'Null Syndicate',
+      'hive collective': 'Ember Legion',
+      'astral wardens': 'Hive Collective',
+      'ember legion': 'Void Corsairs',
+      'null syndicate': 'Astral Wardens',
+    };
+    const key = Object.keys(rivals).find(k => (faction || '').toLowerCase().includes(k));
+    return key ? rivals[key] : 'Rogue Subfaction';
+  }
+
+  function buildFallbackDossier(character) {
+    const traits = Array.isArray(character.traits) ? character.traits : [];
+    const faction = character.faction || 'Unaligned';
+    const roleSeed = traits[0] || 'Operative';
+    return {
+      role: roleSeed.split(' ').slice(0, 3).join(' '),
+      threatRating: 'Omega-' + Math.floor(4 + Math.random() * 5),
+      relic: 'Signal Relic',
+      rival: pickFallbackRival(faction),
+      abilities: [
+        traits[0] || 'Void Instinct',
+        traits[1] || 'Faction Gambit',
+        traits[2] || 'Last Stand',
+      ],
+      mission: `Recover a forbidden artifact before ${pickFallbackRival(faction)} forces claim it.`,
+    };
+  }
+
+  function normalizeDossier(character) {
+    const fallback = buildFallbackDossier(character);
+    const dossier = character.dossier && typeof character.dossier === 'object' ? character.dossier : {};
+    const abilities = Array.isArray(dossier.abilities) && dossier.abilities.length
+      ? dossier.abilities
+      : fallback.abilities;
+    const cleanAbilities = abilities.slice(0, 3).map(a => String(a || '').trim()).filter(Boolean);
+
+    return {
+      role: dossier.role || fallback.role,
+      threatRating: dossier.threatRating || dossier.threat_rating || fallback.threatRating,
+      relic: dossier.relic || fallback.relic,
+      rival: dossier.rival || fallback.rival,
+      abilities: cleanAbilities.length ? cleanAbilities : fallback.abilities,
+      mission: dossier.mission || fallback.mission,
+    };
+  }
+
+  function normalizeSpokenLine(character) {
+    const rawLine = String(character.spokenLine || character.spoken_line || '').trim();
+    const fallback = character.name
+      ? `${character.name} has returned.`
+      : 'The void remembers my name.';
+    const line = rawLine || fallback;
+    return line
+      .replace(/["“”]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .slice(0, 10)
+      .join(' ');
+  }
+
   function updateCard(character) {
     document.getElementById('cardName').textContent = character.name || 'Unknown';
     document.getElementById('cardFaction').textContent = character.faction || 'Unaligned';
-    document.getElementById('cardBackstory').innerHTML =
-      '&ldquo;' + (character.backstory || '...') + '&rdquo;';
+    document.getElementById('cardBackstory').textContent =
+      '"' + (character.backstory || '...') + '"';
 
+    const dossier = normalizeDossier(character);
+    character.dossier = dossier;
+    character.spokenLine = normalizeSpokenLine(character);
+    document.getElementById('dossierRole').textContent = dossier.role;
+    document.getElementById('dossierThreat').textContent = dossier.threatRating;
+    document.getElementById('dossierRelic').textContent = dossier.relic;
+    document.getElementById('dossierRival').textContent = dossier.rival;
+    document.getElementById('dossierMission').textContent = dossier.mission;
+
+    const abilitiesEl = document.getElementById('dossierAbilities');
+    abilitiesEl.innerHTML = '';
+    dossier.abilities.forEach(ability => {
+      const el = document.createElement('span');
+      el.className = 'dossier-ability';
+      el.textContent = ability;
+      abilitiesEl.appendChild(el);
+    });
   }
 
   function updatePortrait(base64) {
@@ -2566,9 +2774,11 @@ CRITICAL RULES FOR THE "appearance" FIELD:
 
     const myImageGen = imageGenCounter;
     const extraDesc = (document.getElementById('videoDescInput')?.value || '').trim();
+    const spokenLine = normalizeSpokenLine(lastCharacter || {});
+    const speechCue = `The character speaks one short line with clear lip-sync and audible cinematic voice: "${spokenLine}"`;
     const videoPrompt = extraDesc
-      ? `Cinematic character reveal: slow camera push-in, ${extraDesc}. Volumetric lighting, shallow depth of field, dark atmospheric background. 10 seconds.`
-      : 'Cinematic character reveal: slow camera push-in, the character breathes slowly with subtle eye movement and micro-expressions. Ambient particles drift through volumetric light. Shallow depth of field, dark atmospheric background with gentle light flicker. 10 seconds.';
+      ? `Cinematic character reveal: slow camera push-in, ${extraDesc}. ${speechCue}. Volumetric lighting, shallow depth of field, dark atmospheric background. 10 seconds.`
+      : `Cinematic character reveal: slow camera push-in, the character breathes slowly with subtle eye movement and micro-expressions. ${speechCue}. Ambient particles drift through volumetric light. Shallow depth of field, dark atmospheric background with gentle light flicker. 10 seconds.`;
 
     const btn = document.getElementById('videoGenBtn');
     const progressWrap = document.getElementById('videoProgressWrap');
@@ -2621,6 +2831,7 @@ CRITICAL RULES FOR THE "appearance" FIELD:
       saveGalleryItem('video', {
         name: lastCharacter?.name || 'Unknown',
         faction: lastCharacter?.faction || '',
+        spokenLine: lastCharacter?.spokenLine || '',
         videoUrl: videoUrl,
       });
     } catch (err) {
@@ -2698,6 +2909,8 @@ CRITICAL RULES FOR THE "appearance" FIELD:
           video_url: lastVideoUrl || null,
           character_name: lastCharacter?.name || 'Unknown',
           faction: lastCharacter?.faction || '',
+          spoken_line: lastCharacter?.spokenLine || '',
+          dossier: lastCharacter?.dossier || null,
         }),
       });
       if (!resp.ok) throw new Error('Upload failed');
@@ -2961,6 +3174,8 @@ CRITICAL RULES FOR THE "appearance" FIELD:
         body: JSON.stringify({
           email,
           character_name: lastCharacter?.name || 'REBORN 40K Character',
+          spoken_line: lastCharacter?.spokenLine || '',
+          dossier: lastCharacter?.dossier || null,
           assets,
         }),
       });
